@@ -1,78 +1,120 @@
 from fastapi import APIRouter
-from data import tasks
 from schemas.task import Task
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from database import get_db
+from models import TaskModel
 
 router = APIRouter()
 
+
 @router.get("/tasks")
-def get_tasks():
+def get_db_tasks(db: Session = Depends(get_db)):
+
+    tasks = db.query(TaskModel).all()
+
     return tasks
 
+
 @router.get("/tasks/{task_id}")
-def  get_tasks(task_id: int):
+def get_tasks(
+        task_id: int,
+        db: Session = Depends(get_db)
+):
 
-    for task in tasks:
+        task = db.query(TaskModel).filter( #looks inside task table
+            TaskModel.id == task_id
+        ).first()                      #give me first matching row
 
-        if task["id"] == task_id:
+        if task:
             return task
 
-    return {
-        "message": "Task Not Found"
-    }
+        return {
+           "message": "Task Not Found"
+        }
+
 
 @router.post("/tasks")
-def create_task(task: Task):
+def create_db_task(
+        task: Task,
+        db: Session = Depends(get_db)):
 
-    new_task = task.model_dump()
+    new_task = TaskModel(
+        task = task.task,
+        priority = task.priority
+    )
 
-    new_task["id"] = len(tasks) + 1
+    db.add(new_task)
 
-    tasks.append(new_task)
+    db.commit()
+
+    db.refresh(new_task)
 
     return {
-        "message": "Task Added",
+        "message": "Task Added to database",
         "task": new_task
     }
 
-@router.put("/tasks{task_id}")
-def update_task(task_id: int, update_task: Task):
 
-    for task in tasks:
+@router.put("/tasks/{task_id}")
+def update_task(
+        task_id: int,
+        update_task: Task,
+        db: Session = Depends(get_db)
+):
 
-        if task["id"] == task_id:
+        task = db.query(TaskModel).filter(
+            TaskModel.id == task_id
+        ).first()
 
-            task["task"] = update_task.task
-            task["priority"] = update_task.priority
-
+        if not task:
             return {
-                "message": "Task Updated"
+                "message": "Task Not Found"
             }
 
-    return {
-        "message": "Task Not Found"
-    }
+        task.task = update_task.task
+        task.priority = update_task.priority
+
+        db.commit()
+
+        db.refresh(task)
+
+        return {
+            "message": "Task Updated",
+            "task": task
+        }
+
 
 @router.delete("/tasks{task_id}")
-def delete_task(task_id: int):
+def delete_task(
+        task_id: int,
+        db: Session = Depends(get_db)
+):
+    task = db.query(TaskModel).filter(
+        TaskModel.id == task_id
+    ).first()
 
-    for task in tasks:
-
-        if task["id"] == task_id:
-
-            tasks.remove(task)
-
-            return {
-                "message": "Task Deleted"
+    if not task:
+        return {
+            "message": "Task Not Found"
             }
+    db.delete(task)
+
+    db.commit()
+
+    return {
+        "message": "Task Deleted"
+    }
+
 
 @router.get("/filter")
-def filter_tasks(priority: str):
+def filter_tasks(
+        priority: str,
+        db: Session = Depends(get_db)
+):
 
-    filtered_tasks = []
+    tasks = db.query(TaskModel).filter(
+        TaskModel.priority == priority
+    ).all()
 
-    for task in tasks:
-
-        if task["priority"] == priority:
-            filtered_tasks.append(task)
-
-        return filtered_tasks
+    return tasks
