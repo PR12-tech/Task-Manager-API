@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String
 class Base(DeclarativeBase):
     pass
 
+#IT is a SQLAlchemy Model Not a Pydantic Model which represents tasks table.
 class TaskModel(Base):
     __tablename__ = "tasks"
 

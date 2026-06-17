@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from schemas.task import Task
 from routers.tasks import router
 from database import engine
 from models import Base
