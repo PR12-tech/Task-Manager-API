@@ -50,16 +50,22 @@ def get_current_user(
 
 def get_db_tasks(
         priority: str | None = None,
-        db: Session = Depends(get_db)
+        skip: int = 0,
+        limit: int = 10,
+        db: Session = Depends(get_db),
+        current_user = Depends(get_current_user)
 ):
 
     if priority:
 
         return db.query(TaskModel).filter(
-            TaskModel.priority == priority
-        ).all()
+            TaskModel.priority == priority,
+            TaskModel.user_id == current_user.id
+        ).offset(skip).limit(limit).all()
 
-    return db.query(TaskModel).all()
+    return db.query(TaskModel).filter(
+        TaskModel.user_id == current_user.id
+    ).offset(skip).limit(limit).all()
 
 
 @router.get(
@@ -72,12 +78,14 @@ def get_db_tasks(
 
 def get_tasks(
         task_id: int,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user = Depends(get_current_user)
 ):
 
-        task = db.query(TaskModel).filter(#looks inside task table
-            TaskModel.id == task_id
-        ).first()                        #give me first matching row
+        task = db.query(TaskModel).filter(
+            TaskModel.id == task_id,
+            TaskModel.user_id == current_user.id
+        ).first()
 
         if task:
             return task
@@ -103,7 +111,8 @@ def create_db_task(
 
     new_task = TaskModel(
         task = task.task,
-        priority = task.priority
+        priority = task.priority,
+        user_id = current_user.id
     )
 
     db.add(new_task)
@@ -180,11 +189,13 @@ def login_user(
 def update_task(
         task_id: int,
         update_task: TaskUpdate,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user = Depends(get_current_user)
 ):
 
         task = db.query(TaskModel).filter(
-            TaskModel.id == task_id
+            TaskModel.id == task_id,
+            TaskModel.user_id == current_user.od
         ).first()
 
         if not task:
@@ -213,10 +224,12 @@ def update_task(
 
 def delete_task(
         task_id: int,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        current_user = Depends(get_current_user)
 ):
     task = db.query(TaskModel).filter(
-        TaskModel.id == task_id
+        TaskModel.id == task_id,
+        TaskModel.user_id == current_user.id
     ).first()
 
     if not task:
