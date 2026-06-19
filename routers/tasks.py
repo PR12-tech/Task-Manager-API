@@ -195,7 +195,7 @@ def update_task(
 
         task = db.query(TaskModel).filter(
             TaskModel.id == task_id,
-            TaskModel.user_id == current_user.od
+            TaskModel.user_id == current_user.id
         ).first()
 
         if not task:
