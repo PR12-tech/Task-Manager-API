@@ -1,5 +1,5 @@
 from logging.config import fileConfig
-
+from models import Base, UserModel, TaskModel
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
