@@ -45,7 +45,8 @@ def get_current_user(
 
 @router.get(
     "/tasks",
-    response_model=list[TaskResponse]
+    response_model=list[TaskResponse],
+    tags = ["Tasks"]
 )
 
 def get_db_tasks(
@@ -71,6 +72,7 @@ def get_db_tasks(
 @router.get(
     "/tasks/{task_id}",
      response_model=TaskResponse,
+     tags = ["Tasks"],
      responses = {
          404: {"description": "Task Not Found"}
      }
@@ -99,6 +101,7 @@ def get_tasks(
 @router.post(
     "/tasks",
     response_model = TaskResponse,
+    tags = ["Tasks"],
     status_code = status.HTTP_201_CREATED
 )
 
@@ -126,6 +129,7 @@ def create_db_task(
 
 @router.post(
     "/register",
+    tags = ["Authentication"],
     response_model = UserResponse,
     status_code = 201
 )
@@ -150,6 +154,7 @@ def register_user(
 
 @router.post(
     "/login",
+    tags = ["Authentication"],
     response_model = TokenResponse
 )
 
@@ -168,6 +173,15 @@ def login_user(
             detail = "Invalid Username or Pass"
         )
 
+    if not verify_password(
+        user.password,
+        db_user.password
+    ):
+        raise HTTPException(
+            status_code = 401,
+            detail = "Invalid Username or Password"
+        )
+
     access_token = create_access_token(
         {"sub": db_user.username}
     )
@@ -180,6 +194,7 @@ def login_user(
 @router.put(
     "/tasks/{task_id}",
     response_model=TaskResponse,
+    tags = ["Tasks"],
     responses={
         404: {"description": "Task Not Found"}
     }
@@ -217,6 +232,7 @@ def update_task(
 @router.delete(
     "/tasks/{task_id}",
     response_model = MessageResponse,
+    tags = ["Tasks"],
     responses = {
         404: {"description": "Task Not Found" }
     }

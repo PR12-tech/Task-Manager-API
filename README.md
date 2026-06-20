@@ -1,34 +1,50 @@
 # Task Manager API
 
-A RESTful Task Manager API built with FastAPI, SQLite, SQLAlchemy, and JWT Authentication.
+A RESTful Task Management API built with FastAPI, PostgreSQL, SQLAlchemy, 
+and JWT Authentication. This project allows users to securely manage their 
+tasks with full CRUD functionality while ensuring that users can only access 
+their own data.
+
+## Live API Documentation
+
+🔗 https://task-manager-api-x41v.onrender.com/docs
 
 ## Features
 
-* User Registration
-* User Login
-* JWT Authentication
-* Protected Routes
-* Create Tasks
-* Get All Tasks
-* Get Task By ID
-* Update Tasks
-* Delete Tasks
-* Filter Tasks By Priority
-* Swagger API Documentation
-* SQLite Database Integration
-* SQLAlchemy ORM
-
----
+- User Registration
+- User Authentication using JWT
+- Secure Password Hashing
+- Create Tasks
+- Retrieve Tasks
+- Update Tasks
+- Delete Tasks
+- User-specific Task Ownership
+- PostgreSQL Database Integration
+- Database Migrations with Alembic
+- Cloud Deployment on Render
 
 ## Tech Stack
 
-* FastAPI
-* SQLite
-* SQLAlchemy
-* Pydantic
-* JWT (python-jose)
-* Passlib + bcrypt
-* Uvicorn
+### Backend
+- FastAPI
+- Python
+
+### Database
+- PostgreSQL
+
+### ORM
+- SQLAlchemy
+
+### Authentication
+- JWT (JSON Web Tokens)
+- Passlib (bcrypt)
+
+### Database Migrations
+- Alembic
+
+### Deployment
+- Render
+- PostgreSQL(Render Managed Database)
 
 ---
 
@@ -37,40 +53,30 @@ A RESTful Task Manager API built with FastAPI, SQLite, SQLAlchemy, and JWT Authe
 ```text
 Task_Manager_Api/
 │
+├── alembic/
+│   ├── versions/
+│   ├── env.py
+│   ├── README
+│   └── script.py.mako
+│
 ├── routers/
+│   ├── __init__.py
 │   └── tasks.py
 │
 ├── schemas/
+│   ├── __init__.py
 │   └── task.py
 │
+├── .env
+├── .gitignore
+├── alembic.ini
 ├── auth.py
 ├── database.py
-├── models.py
 ├── main.py
-├── .gitignore
-├── README.md
-└── tasks.db
+├── models.py
+├── requirements.txt
+└── README.md
 ```
-
----
-
-## Database Models
-
-### User
-
-| Field    | Type            |
-| -------- | --------------- |
-| id       | Integer         |
-| username | String          |
-| password | String (Hashed) |
-
-### Task
-
-| Field    | Type    |
-| -------- | ------- |
-| id       | Integer |
-| task     | String  |
-| priority | String  |
 
 ---
 
@@ -78,48 +84,28 @@ Task_Manager_Api/
 
 ### Authentication
 
-| Method | Endpoint  | Description                 |
-| ------ | --------- | --------------------------- |
-| POST   | /register | Register a new user         |
-| POST   | /login    | Login and receive JWT token |
+| Method | Endpoint | Description |
+|----------|----------|----------|
+| POST | `/register` | Register a new user |
+| POST | `/login` | Login and receive JWT token |
 
 ### Tasks
 
-| Method | Endpoint         | Description             |
-| ------ | ---------------- | ----------------------- |
-| GET    | /tasks           | Get all tasks           |
-| GET    | /tasks/{task_id} | Get task by ID          |
-| POST   | /tasks           | Create task (Protected) |
-| PUT    | /tasks/{task_id} | Update task             |
-| DELETE | /tasks/{task_id} | Delete task             |
-
-### Filtering
-
-| Method | Endpoint               |
-| ------ | ---------------------- |
-| GET    | /tasks?priority=High   |
-| GET    | /tasks?priority=Medium |
-| GET    | /tasks?priority=Low    |
+| Method | Endpoint | Description |
+|----------|----------|----------|
+| POST | `/tasks` | Create a task |
+| GET | `/tasks` | Retrieve all user tasks |
+| PUT | `/tasks/{task_id}` | Update a task |
+| DELETE | `/tasks/{task_id}` | Delete a task |
 
 ---
 
-## Authentication Flow
-
-1. Register a user using `/register`
-2. Login using `/login`
-3. Receive JWT Access Token
-4. Click **Authorize** in Swagger UI
-5. Paste the JWT token
-6. Access protected endpoints
-
----
-
-## Running the Project
+## Installation
 
 ### Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/PR12-tech/Task-Manager-API.git
 cd Task_Manager_Api
 ```
 
@@ -131,7 +117,7 @@ python -m venv .venv
 
 ### Activate Virtual Environment
 
-#### Windows
+Windows:
 
 ```bash
 .venv\Scripts\activate
@@ -143,7 +129,24 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### Run Server
+### Configure Environment Variables
+
+Create a `.env` file:
+
+```env
+DATABASE_URL=your_database_url
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+### Apply Database Migrations
+
+```bash
+alembic upgrade head
+```
+
+### Run Application
 
 ```bash
 uvicorn main:app --reload
@@ -151,48 +154,49 @@ uvicorn main:app --reload
 
 ---
 
-## API Documentation
+## Example Workflow
 
-Swagger UI:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-ReDoc:
-
-```text
-http://127.0.0.1:8000/redoc
-```
+1. Register a User
+2. Login to Obtain JWT Token
+3. Authorize Using Swagger UI
+4. Create Tasks
+5. View Tasks
+6. Update Tasks
+7. Delete Tasks
 
 ---
 
-## Concepts Implemented
+## Learning Outcomes
 
-* REST API Development
-* CRUD Operations
-* SQLAlchemy ORM
-* Dependency Injection
-* Pydantic Validation
-* Response Models
-* HTTP Status Codes
-* Exception Handling
-* JWT Authentication
-* Password Hashing
-* Protected Routes
-* Query Parameters
-* SQLite Database Integration
+This project helped me gain practical experience with:
+
+- FastAPI Development
+- REST API Design
+- JWT Authentication
+- PostgreSQL Integration
+- SQLAlchemy ORM
+- Alembic Migrations
+- Environment Variables
+- Cloud Deployment using Render
+- Production Debugging and Troubleshooting
 
 ---
 
 ## Future Improvements
 
-* User-specific Tasks
-* Task Ownership
-* Database Relationships
-* Refresh Tokens
-* Role-Based Authorization
-* Pagination
-* Search and Sorting
-* Docker Deployment
-* PostgreSQL Integration
+- Task Categories
+- Task Due Dates
+- Task Search & Filtering
+- Pagination
+- Docker Support
+- Automated Testing
+- CI/CD Pipeline
+
+---
+
+## Author
+
+**Prasad Kadam**
+
+Backend Developer Project built to gain hands-on experience with FastAPI, 
+PostgreSQL, JWT Authentication, database migrations using Alembic, and cloud deployment on Render.
